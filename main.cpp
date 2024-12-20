@@ -1,18 +1,18 @@
-/*** 
+/***
  * @Author: xingwg
- * @Date: 2024-12-18 15:55:11
- * @LastEditTime: 2024-12-18 19:14:21
+ * @Date: 2024-12-18 16:03:35
+ * @LastEditTime: 2024-12-20 11:27:18
  * @FilePath: /tokenizers_cpp/main.cpp
- * @Description: 
+ * @Description:
  * @
- * @Copyright (c) 2024 by Chinasvt, All Rights Reserved. 
+ * @Copyright (c) 2024 by Chinasvt, All Rights Reserved.
  */
 #include "bert_tokenizer.h"
 #include "clip_tokenizer.h"
 #include <iostream>
 #include <string>
 
-void print_tensor(Tensor &t) {
+void print_tensor(TokenizerOutput &t) {
     printf("%s dim: %d, len: %ld\n", t.name.c_str(), t.ndim, t.size());
 
     printf("shape: ");
@@ -37,7 +37,7 @@ int main() {
     std::string prompt = "a photo of a cat";
 
     printf("\nBertTokenizer Encode:\n");
-    std::vector<Tensor> outputs;
+    std::vector<TokenizerOutput> outputs;
     bertTokenizer.encode(prompt, outputs, 32);
     print_tensor(outputs[0]);
     print_tensor(outputs[1]);
