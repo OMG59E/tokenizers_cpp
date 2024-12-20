@@ -1,8 +1,8 @@
 /***
  * @Author: xingwg
- * @Date: 2024-12-18 14:20:55
- * @LastEditTime: 2024-12-18 15:40:03
- * @FilePath: /bertTokenizer_cpp/tokenizer_common.h
+ * @Date: 2024-12-18 16:03:35
+ * @LastEditTime: 2024-12-20 11:20:12
+ * @FilePath: /tokenizers_cpp/common.h
  * @Description:
  * @
  * @Copyright (c) 2024 by Chinasvt, All Rights Reserved.
@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-#define SAFE_FREE(ptr)                                                         \
+#define RELEASE(ptr)                                                           \
     do {                                                                       \
         if (ptr) {                                                             \
             delete ptr;                                                        \
@@ -21,7 +21,7 @@
     } while (0)
 
 ;  //
-struct Tensor {
+struct TokenizerOutput {
     std::string name;
     int32_t ndim{0};
     int32_t dims[8]{};

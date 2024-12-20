@@ -33,13 +33,13 @@ public:
                                   enc_model_str.size(), session_options_);
     }
     ~CLIPTokenizerFastImpl() {
-        SAFE_FREE(m_enc_);
-        SAFE_FREE(env_);
+        RELEASE(m_enc_);
+        RELEASE(env_);
         if (custom_so_handle_)
             static_cast<void>(::dlclose(custom_so_handle_));
     }
 
-    int encode(const std::string &text, std::vector<Tensor> &outputs,
+    int encode(const std::string &text, std::vector<TokenizerOutput> &outputs,
                int32_t max_length = 0) {
         auto memory_info =
             Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
@@ -82,11 +82,11 @@ public:
             // outputs2 - offset_mapping not padding
             int32_t padding_len = max_length - input_ids_len;
             outputs[0].dims[1] = max_length;
-            outputs[1].dims[1] = max_length;;
+            outputs[1].dims[1] = max_length;
+            ;
             for (int i = 0; i < padding_len; ++i) {
                 outputs[0].buf.emplace_back(49407);
                 outputs[1].buf.emplace_back(0);
-                
             }
         }
         return 0;
@@ -112,11 +112,11 @@ CLIPTokenizerFast::CLIPTokenizerFast(
 
 CLIPTokenizerFast::~CLIPTokenizerFast() {
     auto *p = static_cast<CLIPTokenizerFastImpl *>(handle_);
-    SAFE_FREE(p);
+    RELEASE(p);
 }
 
 int CLIPTokenizerFast::encode(const std::string &text,
-                              std::vector<Tensor> &outputs,
+                              std::vector<TokenizerOutput> &outputs,
                               int32_t max_length) {
     auto *p = static_cast<CLIPTokenizerFastImpl *>(handle_);
     return p->encode(text, outputs, max_length);
@@ -142,14 +142,14 @@ public:
     }
 
     ~BertTokenizerImpl() {
-        SAFE_FREE(m_enc_);
-        SAFE_FREE(m_dec_);
-        SAFE_FREE(env_);
+        RELEASE(m_enc_);
+        RELEASE(m_dec_);
+        RELEASE(env_);
         if (custom_so_handle_)
             static_cast<void>(::dlclose(custom_so_handle_));
     }
 
-    int encode(const std::string &text, std::vector<Tensor> &outputs,
+    int encode(const std::string &text, std::vector<TokenizerOutput> &outputs,
                int32_t max_length = 0) {
         auto memory_info =
             Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
@@ -231,7 +231,7 @@ public:
     }
 
 private:
-    static void GetTensorMutableDataString(const Ort::Value& value,
+    static void GetTensorMutableDataString(const Ort::Value &value,
                                            std::vector<std::string> &output) {
         // 获取张量类型和形状信息
         auto type_info = value.GetTensorTypeAndShapeInfo();
@@ -240,14 +240,16 @@ private:
 
         // 获取字符串张量的总数据长度
         size_t data_len;
-        OrtStatusPtr e = Ort::GetApi().GetStringTensorDataLength(value, &data_len);
+        OrtStatusPtr e =
+            Ort::GetApi().GetStringTensorDataLength(value, &data_len);
         output.resize(len);
 
         std::vector<char> result(data_len + len + 1, '\0');
         std::vector<size_t> offsets(len);
 
         // 获取字符串张量内容
-        e = Ort::GetApi().GetStringTensorContent(value, result.data(), data_len, offsets.data(), offsets.size());
+        e = Ort::GetApi().GetStringTensorContent(
+            value, result.data(), data_len, offsets.data(), offsets.size());
 
         output.resize(len);
         for (int64_t i = (int64_t)len - 1; i >= 0; --i) {
@@ -280,10 +282,11 @@ BertTokenizer::BertTokenizer(const std::string &custom_op_library_path) {
 
 BertTokenizer::~BertTokenizer() {
     auto *p = static_cast<BertTokenizerImpl *>(handle_);
-    SAFE_FREE(p);
+    RELEASE(p);
 }
 
-int BertTokenizer::encode(const std::string &text, std::vector<Tensor> &outputs,
+int BertTokenizer::encode(const std::string &text,
+                          std::vector<TokenizerOutput> &outputs,
                           int32_t max_length) {
     auto *p = static_cast<BertTokenizerImpl *>(handle_);
     return p->encode(text, outputs, max_length);
